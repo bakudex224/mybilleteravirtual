@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billetera Virtual</title>
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: #333;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card img {
+            max-width: 100px;
+            height: auto;
+        }
+        input[type="text"], input[type="number"], input[type="date"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #666;
+            background-color: #444;
+            color: #fff;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #00c;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0080c0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <button id="addCard">+</button>
+    <div id="cards">
+        <!-- Aquí se mostrarán las tarjetas -->
+    </div>
+</div>
+
+<!-- Modal para agregar una nueva tarjeta -->
+<div id="modal" style="display: none;">
+    <div class="container">
+        <form id="cardForm">
+            <select id="cardType">
+                <option value="visa">Visa</option>
+                <option value="mastercard">Mastercard</option>
+                <option value="americanexpress">American Express</option>
+                <option value="discover">Discover</option>
+                <option value="dinersclub">Diners Club</option>
+                <option value="jcb">JCB</option>
+                <option value="other">Otro</option>
+            </select>
+            <input type="text" id="cardNumber" placeholder="Número de Tarjeta">
+            <input type="number" id="cvv" placeholder="CVV">
+            <input type="text" id="expiryDate" placeholder="Fecha de Expiración">
+            <input type="text" id="addressLine1" placeholder="Dirección (Línea 1)">
+            <input type="text" id="addressLine2" placeholder="Dirección (Línea 2)">
+            <input type="text" id="postalCode" placeholder="Código Postal">
+            <input type="submit" value="Guardar">
+        </form>
+    </div>
+</div>
+
+<!-- Modal para mostrar detalles de la tarjeta -->
+<div id="detailsModal" style="display: none;">
+    <div class="container" id="detailsContainer">
+        <!-- Aquí se mostrarán los detalles de la tarjeta -->
+    </div>
+</div>
+
+<script>
+    // Simulación de tarjetas almacenadas
+    var cards = [];
+
+    // Función para agregar una nueva tarjeta
+    function addCard() {
+        document.getElementById('modal').style.display = 'block';
+    }
+
+    // Función para guardar una nueva tarjeta
+    function saveCard() {
+        var cardType = document.getElementById('cardType').value;
+        var cardNumber = document.getElementById('cardNumber').value;
+        var cvv = document.getElementById('cvv').value;
+        var expiryDate = document.getElementById('expiryDate').value;
+        var addressLine1 = document.getElementById('addressLine1').value;
+        var addressLine2 = document.getElementById('addressLine2').value;
+        var postalCode = document.getElementById('postalCode').value;
+
+        cards.push({
+            cardType: cardType,
+            cardNumber: cardNumber,
+            cvv: cvv,
+            expiryDate: expiryDate,
+            addressLine1: addressLine1,
+            addressLine2: addressLine2,
+            postalCode: postalCode
+        });
+
+        document.getElementById('modal').style.display = 'none';
+        renderCards();
+        backupCards();
+    }
+
+    // Función para mostrar las tarjetas almacenadas
+    function renderCards() {
+        var cardsContainer = document.getElementById('cards');
+        cardsContainer.innerHTML = '';
+
+        cards.forEach(function(card, index) {
+            var cardDiv = document.createElement('div');
+            cardDiv.classList.add('card');
+            cardDiv.addEventListener('click', function() {
+                showCardDetails(index);
+            });
+
+            // Agregar más detalles de la tarjeta aquí...
+
+            var cardTypeDiv = document.createElement('div');
+            cardTypeDiv.textContent = 'Tipo de Tarjeta: ' + card.cardType.charAt(0).toUpperCase() + card.cardType.slice(1);
+            cardDiv.appendChild(cardTypeDiv);
+
+            var cardNumberDiv = document.createElement('div');
+            cardNumberDiv.textContent = 'Número de Tarjeta: ' + card.cardNumber;
+            cardDiv.appendChild(cardNumberDiv);
+
+            cardsContainer.appendChild(cardDiv);
+        });
+    }
+
+    // Función para mostrar los detalles de una tarjeta
+    function showCardDetails(index) {
+        var detailsContainer = document.getElementById('detailsContainer');
+        detailsContainer.innerHTML = '';
+
+        var card = cards[index];
+        for (var key in card) {
+            var detailDiv = document.createElement('div');
+            detailDiv.textContent = key.charAt(0).toUpperCase() + key.slice(1) + ': ' + card[key];
+            detailsContainer.appendChild(detailDiv);
+        }
+
+        document.getElementById('detailsModal').style.display = 'block';
+    }
+
+    // Función para hacer backup de las tarjetas
+    function backupCards() {
+        localStorage.setItem('cards', JSON.stringify(cards));
+    }
+
+    // Función para restaurar las tarjetas desde el backup
+    function restoreCards() {
+        var storedCards = localStorage.getItem('cards');
+        if (storedCards) {
+            cards = JSON.parse(storedCards);
+            renderCards();
+        }
+    }
+
+    // Event listeners
+    document.getElementById('addCard').addEventListener('click', addCard);
+    document.getElementById('cardForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        saveCard();
+    });
+
+    // Mostrar las tarjetas al cargar la página
+    restoreCards();
+</script>
+
+</body>
+</html>
